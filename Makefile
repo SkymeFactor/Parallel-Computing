@@ -8,6 +8,11 @@ CXX_FLAGS=-c -Wall -Werror -std=c++17
 # CXX_FLAGS_DEBUG=-g -O0 -pg -DDEBUG
 LD_FLAGS=-fopenmp
 
+# Get $LIBRARY_PATH from env
+ifdef LIBRARY_PATH
+	LIB_PATH=-L $(LIBRARY_PATH)
+endif
+
 # Directories
 SRC_DIR=src/
 OBJ_DIR=obj/
@@ -35,7 +40,7 @@ $(OBJECTS): $(OBJ_DIR)%.o: $(SRC_DIR)%.cpp
 	$(CXX) $(CXX_FLAGS) $(CXX_FLAGS_DEBUG) $(INCLUDE) $< -o $@ $(LD_FLAGS)
 
 $(BINARIES): $(OBJECTS)
-	$(CXX) $(CXX_FLAGS_DEBUG) $^ -o $@ $(LD_FLAGS)
+	$(CXX) $(CXX_FLAGS_DEBUG) $(LIB_PATH) $^ -o $@ $(LD_FLAGS)
 
 make_dirs:
 	$(MD) $(OBJ_DIR)
