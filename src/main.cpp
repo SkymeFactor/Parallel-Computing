@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <cmath>
 #include <fstream>
 #include <limits>
@@ -20,21 +21,22 @@ double f_x(double x) {
 
 
 double get_integral(double (*func)(double), double left, double right, double err_val) {
-    double area = 0.0;
+    double area = std::numeric_limits<double>::max();
     double step = right - left;
-    double area_prev = std::numeric_limits<double>::max();
+    double area_prev;
     
     omp_estimator::timer_begin();
-    while( std::abs(area - area_prev) / 3 >= err_val ) {
+    do {
         area_prev = area;
         area = 0.0;
-        step = step / 2;
 
         #pragma omp parallel for reduction(+: area) schedule(runtime)
         for (int i = 0; i < (right - left) / step; i++) {
             area += func(left + step / 2 + i * step) * step;
         }
-    }
+        step = step / 2;
+        
+    } while (std::abs(area - area_prev) / 3 >= err_val );
     omp_estimator::timer_end();
     
     return area;
@@ -42,20 +44,21 @@ double get_integral(double (*func)(double), double left, double right, double er
 
 
 double get_integral_no_omp(double (*func)(double), double left, double right, double err_val) {
-    double area = 0.0;
+    double area = std::numeric_limits<double>::max();
     double step = right - left;
-    double area_prev = std::numeric_limits<double>::max();
+    double area_prev;
     
     omp_estimator::timer_begin();
-    while( std::abs(area - area_prev) / 3 >= err_val ) {
+    do  {
         area_prev = area;
         area = 0.0;
-        step = step / 2;
         
         for (int i = 0; i < (right - left) / step; i++) {
             area += func(left + step / 2 + i * step) * step;
         }
-    }
+        step = step / 2;
+
+    } while (std::abs(area - area_prev) / 3 >= err_val );
     omp_estimator::timer_end();
     
     return area;
@@ -72,6 +75,7 @@ int main(int argc, char* argv[]) {
 
     std::ifstream fin(argv[1]);
     std::ofstream fout(argv[2]);
+    fout << std::fixed << std::setprecision(5);
     int thr_num = std::atoi(argv[3]);
     
     if (!fin.is_open() || !fout.is_open())
