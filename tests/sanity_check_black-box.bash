@@ -98,13 +98,13 @@ assert "$(<$OUTPUT_FILE)" "-0.51071"
 
 # POSITIVE: interval is positive and valid, TC_13
 $EXEC /dev/stdin $OUTPUT_FILE 0 1> /dev/null <<< '7 8 0.00001'
-assert "$(<$OUTPUT_FILE)" "-0.113163"
+assert "$(<$OUTPUT_FILE)" "-0.11316"
 
 # POSITIVE: trailing newline, TC_14
 $EXEC /dev/stdin $OUTPUT_FILE 0 1> /dev/null <<< '''1 2 0.00001
 
 '''
-assert "$(<$OUTPUT_FILE)" "-0.0454994"
+assert "$(<$OUTPUT_FILE)" "-0.04550"
 
 
 
@@ -128,7 +128,7 @@ assert "$(<$OUTPUT_FILE)" "-nan"
 
 # POSITIVE: distance between left and right bounds is zero, TC_19
 $EXEC /dev/stdin $OUTPUT_FILE 0 1> /dev/null <<< '3.14159265358979323846 3.14159265358979323846 0.00001'
-assert "$(<$OUTPUT_FILE)" "0"
+assert "$(<$OUTPUT_FILE)" "0.00000"
 
 
 
