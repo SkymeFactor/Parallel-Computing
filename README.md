@@ -3,7 +3,13 @@
 
 ## Description
 
-This program is intended to show the scopes of multi-threaded programming during mathematical computations using OpenMP. For instance, calculation of a numerical integral by centered rectangles method is used as the workload function. For the integration step determining purposes the epsilon value is used according to the Runge's rule.
+This program is intended to show the scopes of multi-threaded programming during mathematical computations using OpenMP. For instance, calculation of a numerical integral by centered rectangles method is used as the workload function.
+
+<img src="https://render.githubusercontent.com/render/math?math=\int_{a}^{b}{ln(sin(x))\,dx}">
+
+For integration step determining purposes the epsilon value is used according to the Runge's rule:
+
+<img src="https://render.githubusercontent.com/render/math?math=\frac{|y^{(h/2)}-y^{(h)}|}{2^p-1}<\epsilon">, where p is a precision order (2 for this method)
 
 ## Compilation and usage
 
