@@ -13,67 +13,77 @@ if [ ! -d "data" ]; then
     mkdir data
 fi
 
+# Make sure that we have all python modules installed
+echo; echo "-- Python modules check --"; echo
+python3 -m pip install -r requirements.txt
 
-# Perform the sanity check black-box test
-if [ -e "./tests/sanity_check_black-box.bash" ]; then
-
-    if [ -e "./data/lena.pgm" ] && [ -e "./data/baboon.pgm" ] && [ -e "./data/pepper.pgm" ]; then
-        echo; echo "-- Sanity check --"; echo
-        source ./tests/sanity_check_black-box.bash
-
-        if [ "$?" -ne "0" ]; then
-            echo; echo "[ ${red}ERROR${reset} ]: Sanity check failed, following results may not be reliable"
-        else
-            echo; echo "[ ${green}OK${reset} ]: All tests have completed successfully"
-        fi
-    else
-        echo; echo "[ ${red}ERROR${reset} ]: Missing test image files"
-    fi
-
+if [ "$?" -ne "0" ]; then
+    echo; echo "[ ${red}ERROR${reset} ]: Cannot install required modules, aborted"
 else
-    echo; echo "[ ${red}ERROR${reset} ]: Missing file with functional tests script"
-fi
+    echo; echo "[ ${green}OK${reset} ]: All modules checked"
 
-# Execute performance evaluating
-if [ -e "./tests/sanity_check_black-box.bash" ]; then
-    echo; echo "-- Performance measurement --"; echo
-    source ./tests/perf_tests.bash
+    # Perform the sanity check black-box test
+    if [ -e "./tests/sanity_check_black-box.bash" ]; then
 
-    if [ "$?" -ne "0" ]; then
-        echo; echo "[ ${red}ERROR${reset} ]: Evaluation failed"
-    else
-        echo; echo "[ ${green}OK${reset} ]: Evaluation is complete"
-    fi
+        if [ -e "./data/lena.pgm" ] && [ -e "./data/baboon.pgm" ] && [ -e "./data/pepper.pgm" ]; then
+            echo; echo "-- Sanity check --"; echo
+            source ./tests/sanity_check_black-box.bash
 
-else
-    echo; echo "[ ${red}ERROR${reset} ]: Missing file with performance measurement script"
-fi
-
-
-if [ -e "./tests/sanity_check_black-box.bash" ] && [ -e "requirements.txt" ]; then
-    # Make sure that we have all python modules installed
-    echo; echo "-- Python modules check --"; echo
-    python3 -m pip install -r requirements.txt
-
-    if [ "$?" -ne "0" ]; then
-        echo; echo "[ ${red}ERROR${reset} ]: Cannot install required modules, aborted"
-    else
-        echo; echo "[ ${green}OK${reset} ]: All modules checked"
-        
-        # Interpret obtained results as charts
-        echo; echo "-- Charts assembling --"; echo
-        python3 ./tools/build_charts.py
-
-        if [ "$?" -ne "0" ]; then
-            echo; echo "[ ${red}ERROR${reset} ]: Charts has not been built"
+            if [ "$?" -ne "0" ]; then
+                echo; echo "[ ${red}ERROR${reset} ]: Sanity check failed, following results may not be reliable"
+            else
+                echo; echo "[ ${green}OK${reset} ]: All tests have completed successfully"
+            fi
         else
-            echo; echo "[ ${green}OK${reset} ]: Charts has been assembled successfully"
+            echo; echo "[ ${red}ERROR${reset} ]: Missing test image files"
         fi
 
+    else
+        echo; echo "[ ${red}ERROR${reset} ]: Missing file with functional tests script"
     fi
 
-else
-    echo; echo "[ ${red}ERROR${reset} ]: Missing file with charts building script or requirements.txt"
-fi
+    # Execute performance evaluating
+    if [ -e "./tests/sanity_check_black-box.bash" ]; then
+        echo; echo "-- Performance measurement --"; echo
+        source ./tests/perf_tests.bash
 
-echo; echo "-- Complete --"
+        if [ "$?" -ne "0" ]; then
+            echo; echo "[ ${red}ERROR${reset} ]: Evaluation failed"
+        else
+            echo; echo "[ ${green}OK${reset} ]: Evaluation is complete"
+        fi
+
+    else
+        echo; echo "[ ${red}ERROR${reset} ]: Missing file with performance measurement script"
+    fi
+
+
+    if [ -e "./tests/sanity_check_black-box.bash" ] && [ -e "requirements.txt" ]; then
+        # Make sure that we have all python modules installed
+        echo; echo "-- Python modules check --"; echo
+        python3 -m pip install -r requirements.txt
+
+        if [ "$?" -ne "0" ]; then
+            echo; echo "[ ${red}ERROR${reset} ]: Cannot install required modules, aborted"
+        else
+            echo; echo "[ ${green}OK${reset} ]: All modules checked"
+            
+            # Interpret obtained results as charts
+            echo; echo "-- Charts assembling --"; echo
+            python3 ./tools/build_charts.py
+
+            if [ "$?" -ne "0" ]; then
+                echo; echo "[ ${red}ERROR${reset} ]: Charts has not been built"
+            else
+                echo; echo "[ ${green}OK${reset} ]: Charts has been assembled successfully"
+            fi
+
+        fi
+
+    else
+        echo; echo "[ ${red}ERROR${reset} ]: Missing file with charts building script or requirements.txt"
+    fi
+    
+    echo; echo "-- Complete --"
+
+fi
