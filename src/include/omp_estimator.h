@@ -42,7 +42,7 @@ namespace omp_estimator {
         set_return_value(func);
         
         // Warming up
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < num_iterations / 10; i++) {
             func();
         }
 
