@@ -33,6 +33,7 @@ def main():
     else:
         filename = sys.argv[2]
     lst = np.fromfile(filename, np.int32, -1, '')
+    lst.resize(256)
     
     plot_img_hist(np.argwhere(lst != 0).flatten(), lst[lst != 0], filename)
     
