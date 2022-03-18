@@ -58,16 +58,7 @@ else
     fi
 
 
-    if [ -e "./tests/sanity_check_black-box.bash" ] && [ -e "requirements.txt" ]; then
-        # Make sure that we have all python modules installed
-        echo; echo "-- Python modules check --"; echo
-        python3 -m pip install -r requirements.txt
-
-        if [ "$?" -ne "0" ]; then
-            echo; echo "[ ${red}ERROR${reset} ]: Cannot install required modules, aborted"
-        else
-            echo; echo "[ ${green}OK${reset} ]: All modules checked"
-            
+    if [ -e "./tests/sanity_check_black-box.bash" ]; then
             # Interpret obtained results as charts
             echo; echo "-- Charts assembling --"; echo
             python3 ./tools/build_charts.py
@@ -77,8 +68,6 @@ else
             else
                 echo; echo "[ ${green}OK${reset} ]: Charts has been assembled successfully"
             fi
-
-        fi
 
     else
         echo; echo "[ ${red}ERROR${reset} ]: Missing file with charts building script or requirements.txt"
