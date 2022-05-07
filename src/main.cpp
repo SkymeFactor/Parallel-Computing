@@ -21,18 +21,21 @@ int main(int argc, char* argv[]) {
     std::string kernel_filename {"src/kernels/floatMatMul.cl"};
     std::string kernel_name {""};
     std::vector<std::size_t> local_worksize {LOCAL_SIZE, LOCAL_SIZE};
+    unsigned vector_size = 1;
+
 
     switch (algorithm_implementation) {
         case 1: kernel_name = "matMulSimple"; break;
         case 2: kernel_name = "matMulBlocked"; break;
         case 3:
             kernel_name = "matMulBlockedVectorized";
-            local_worksize = {LOCAL_SIZE, LOCAL_SIZE / 8};
+            vector_size = 8;
+            local_worksize = {LOCAL_SIZE, LOCAL_SIZE / vector_size};
         break;
         default: std::cerr << "[ Error ]: Invalid algorithm version\n"; return EXIT_FAILURE;
     }
 
-    auto [mat_in1, mat_in2] = generateTestData(2000, 1000, 2000); //parse_matrices_file(in_filename);
+    auto [mat_in1, mat_in2] = generateTestData(1000, 1000, 1000); //parse_matrices_file(in_filename);
     decltype(mat_in1) mat_out;
     mat_out.setSize(mat_in1.getHeight(), mat_in2.getWidth());
 
@@ -55,7 +58,7 @@ int main(int argc, char* argv[]) {
 
         ezocl::Kernel kernel {
             kernel_name,
-            ezocl::makeGlobalNDRange(local_worksize, mat_in2.getWidth(), mat_in1.getHeight()),
+            ezocl::makeGlobalNDRange(local_worksize, mat_in2.getWidth(), mat_in1.getHeight() / vector_size),
             local_worksize,
             heightA, widthA, widthB,
             matA, matB, matC
