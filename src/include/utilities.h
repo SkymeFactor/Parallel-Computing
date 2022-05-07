@@ -51,7 +51,7 @@ std::enable_if_t<std::is_floating_point_v<T>, bool> is_close(const T& a, const T
     if (std::fabs(a - b) <= NEARLY_ZERO)
         return true;
     
-    using Float = union Float {
+    union Float {
         std::int64_t int_repr;
         T float_repr;
         Float(T val) : int_repr(0) { float_repr = val; };
