@@ -22,9 +22,11 @@ void Program::execute(std::string build_options) {
 
     ret = clBuildProgram(program, 0, NULL, build_options.c_str(), NULL, NULL);
     
+#ifdef DEBUG
     char var[1024];
     clGetProgramBuildInfo(program, device.get_device_handle(), CL_PROGRAM_BUILD_LOG, 1024, var, NULL);
     std::cout << var << '\n';
+#endif
     
     if (ret != CL_SUCCESS) throw Error("Unable to build program");
 
