@@ -131,7 +131,7 @@ private:
     std::size_t mem_type {0};
 public:
     Buffer(void* pointer, std::size_t size, BufferType mem_type):
-            pointer{pointer}, size{size}, mem_type{mem_type}
+            pointer{pointer}, size{size}, mem_type{static_cast<std::size_t>(mem_type)}
     {};
     
     void acquireHandle(cl_context& ctx, cl_command_queue& cq);
@@ -154,8 +154,8 @@ class Kernel {
     std::vector<std::size_t> local_work_size;
     std::vector<std::shared_ptr<Buffer>> arguments;
 public:
-    template <typename T = std::vector<std::size_t>, class... Args,
-        std::enable_if_t<(decay_equal<Args, Buffer>::value && ...) , bool> = true>
+    template <typename T = std::vector<std::size_t>, class... Args/*,
+        std::enable_if_t<(decay_equal<Args, Buffer>::value && ...) , bool> = true*/>
     Kernel(std::string_view kernel_name, T global_work_size, T local_work_size, Args... args):
             kernel_name{kernel_name},
             global_work_size{std::forward<T>(global_work_size)},
@@ -194,9 +194,9 @@ private:
 
     void teardown();
 public:
-    template <typename DeviceType, class... KernelTypes,
+    template <typename DeviceType, class... KernelTypes/*,
                 std::enable_if_t<decay_equal<DeviceType, ezocl::Device>::value &&
-                (decay_equal<KernelTypes, ezocl::Kernel>::value && ...) , bool> = true>
+                (decay_equal<KernelTypes, ezocl::Kernel>::value && ...) , bool> = true*/>
     explicit Program(std::string filename, DeviceType device, KernelTypes... kernels) :
                 device{std::forward<DeviceType>(device)},
                 kernels{std::forward<KernelTypes>(kernels)...}
