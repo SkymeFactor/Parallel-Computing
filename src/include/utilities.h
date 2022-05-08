@@ -136,3 +136,16 @@ Matrix<T> make_zero_padding(const Matrix<T>& mat, const unsigned& pad_size_h, co
     
     return mat_out;
 }
+
+template<class T>
+Matrix<T> remove_padding(const Matrix<T>& mat, const unsigned& height, const unsigned& width) {
+    Matrix<T> mat_out;
+    mat_out.setSize(height, width);
+    
+    for (unsigned h = 0; h < mat_out.getHeight(); ++h)
+        for (unsigned w = 0; w < mat_out.getWidth(); ++w) {
+            mat_out[h][w] = mat[h][w];
+        }
+    
+    return mat_out;
+}
