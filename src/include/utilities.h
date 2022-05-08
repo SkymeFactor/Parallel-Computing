@@ -10,7 +10,7 @@
 
 template <typename T = float>
 std::enable_if_t<std::is_floating_point_v<T>, std::pair<Matrix<T>, Matrix<T>> >
-generateTestData(const int& m, const int& k, const int& n, const T& max_val = 1000.0) {
+generate_test_data(const int& m, const int& k, const int& n, const T& max_val = 1000.0) {
     Matrix<T> mat_in1, mat_in2;
     srand(time(0));
     mat_in1.setSize(m, k);
@@ -34,9 +34,9 @@ Matrix<T> mat_mul_cpu(const Matrix<T>& matA, const Matrix<T>& matB) {
     Matrix<T> matC;
     matC.setSize(matA.getHeight(), matB.getWidth());
 
-    for (int i = 0; i < matC.getHeight(); ++i) {
-        for (int k = 0; k < matA.getWidth(); ++k) {
-            for (int j = 0; j < matC.getWidth(); ++j) {
+    for (unsigned i = 0; i < matC.getHeight(); ++i) {
+        for (unsigned k = 0; k < matA.getWidth(); ++k) {
+            for (unsigned j = 0; j < matC.getWidth(); ++j) {
                 matC[i][j] += matA[i][k] * matB[k][j];
             }
         }
@@ -57,7 +57,7 @@ std::enable_if_t<std::is_floating_point_v<T>, bool> is_close(const T& a, const T
         Float(T val) : int_repr(0) { float_repr = val; };
     };
 
-    return std::abs(Float(a).int_repr - Float(b).int_repr) <= 5; // 5 ULPs distance is more than enough
+    return std::abs(Float(a).int_repr - Float(b).int_repr) <= 6; // 5 ULPs distance is more than enough
 };
 
 template <class T>
@@ -73,12 +73,9 @@ bool compareMatrices(Matrix<T> matA, Matrix<T> matB) {
     for (int i = 0; i < matA.getHeight() * matA.getWidth(); ++i) {
         if (!is_close(test_arr[i], pOutputVector[i])) {
             are_equal = false;
-            std::cout << i + 1 << ": " << pOutputVector[i] << ' ' << test_arr[i] << '\n';
+            //std::cout << i + 1 << ": " << pOutputVector[i] << ' ' << test_arr[i] << '\n';
             break;
-            //std::cout << "\033[0;0;31m";
         }
-        //std::cout << i + 1 << ": " << pOutputVector[i] << ' ' << test_arr[i] << '\n';
-        //std::cout << "\033[0m";
     }
 
     return are_equal;
@@ -122,7 +119,20 @@ void save_matrix_to_file(const Matrix<T>& mat, const std::string& filename) {
     fout << mat.getWidth() << ' ' << mat.getHeight() << '\n';
     fout << std::fixed;
 
-    for (int i = 0; i < mat.getHeight(); ++i)
-        for (int j = 0; j < mat.getWidth(); j++)
+    for (unsigned i = 0; i < mat.getHeight(); ++i)
+        for (unsigned j = 0; j < mat.getWidth(); j++)
             fout << mat[i][j] << (j < mat.getWidth() - 1 ? ' ' : '\n');
 };
+
+template<class T>
+Matrix<T> make_zero_padding(const Matrix<T>& mat, const unsigned& pad_size_h, const unsigned& pad_size_w) {
+    Matrix<T> mat_out;
+    mat_out.setSize(mat.getHeight() + pad_size_h, mat.getWidth() + pad_size_w);     // Zeroed by default
+    
+    for (unsigned h = 0; h < mat.getHeight(); ++h)
+        for (unsigned w = 0; w < mat.getWidth(); ++w) {
+            mat_out[h][w] = mat[h][w];
+        }
+    
+    return mat_out;
+}
