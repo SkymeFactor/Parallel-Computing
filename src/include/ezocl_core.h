@@ -1,7 +1,8 @@
 #pragma once
 
+#define CL_TARGET_OPENCL_VERSION 120
 #define CL_USE_DEPRECATED_OPENCL_1_2_APIS
-#define LOCAL_SIZE 32
+#define LOCAL_SIZE 16
 
 #include <string>
 #include <fstream>
@@ -202,6 +203,7 @@ public:
                 kernels{std::forward<KernelTypes>(kernels)...}
     {
         std::ifstream fin(filename);
+        if (!fin.is_open()) throw std::fstream::failure("Unable to read source code from file " + filename);
         std::stringstream ss;
         ss << fin.rdbuf();
         program_source = ss.str();
