@@ -43,8 +43,8 @@ int main(int argc, char* argv[]) {
 
     auto [mat_in1, mat_in2] = parse_matrices_file(in_filename); //generate_test_data(1000, 1000, 1000);
     
-    auto resulting_height = mat_in2.getWidth(),
-         resulting_width = mat_in1.getHeight();
+    auto resulting_width = mat_in2.getWidth(),
+         resulting_height = mat_in1.getHeight();
     
     mat_in1 = make_zero_padding(
         mat_in1,
@@ -106,7 +106,7 @@ int main(int argc, char* argv[]) {
                 << "\nTime: " << static_cast<double>(total_time[0]) / 1000000.0 << '\t'
                 << static_cast<double>(kernel_time[0]) / 1000000.0 << std::noshowpoint << " \n";
 
-        mat_out.setSizeNoResizing(resulting_height, resulting_width);
+        mat_out = remove_padding(mat_out, resulting_height, resulting_width);
         save_matrix_to_file(mat_out, out_filename);
 
     } catch(const std::exception& e) {
