@@ -4,7 +4,7 @@
 
 # Compiler options
 CXX=clang++
-CXX_FLAGS=-c -O3 -g -Wall -std=c++17
+CXX_FLAGS=-c -O3 -g -Wall -std=c++17 -DDEBUG
 # CXX_FLAGS_DEBUG=-g -O0 -pg -DDEBUG
 LD_FLAGS=-lOpenCL # -fsanitize=address,thread
 
@@ -17,7 +17,7 @@ BIN_DIR=build/
 SOURCES=$(shell find $(SRC_DIR) -type f -name '*.cpp')
 INCLUDE=-I $(SRC_DIR)include
 OBJECTS=$(SOURCES:$(SRC_DIR)%.cpp=%.o)
-BINARIES=$(BIN_DIR)cl_lab2.elf
+BINARIES=$(BIN_DIR)cl_lab1.elf
 
 # Utilities
 RM=rm -rf
