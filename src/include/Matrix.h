@@ -37,11 +37,6 @@ public:
         std::fill(data.begin(), data.end(), 0.0f);
     };
 
-    inline void setSizeNoResizing(const unsigned& height, const unsigned& width) {
-        this->height = height;
-        this->width = width;
-    }
-
     inline unsigned int getWidth()  const noexcept { return width; };
     inline unsigned int getHeight() const noexcept { return height; };
     inline unsigned int getSizeInBytes() const noexcept { return width * height * sizeof(T); };
