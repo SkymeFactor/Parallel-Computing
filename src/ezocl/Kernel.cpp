@@ -81,13 +81,13 @@ std::size_t Kernel::getTotalTime() {
     std::size_t from_start = CL_ULONG_MAX, from_end = 0;
     
     for (auto& it: arguments) {
-        auto temp = it->getTransferToDeviceTime();
-        to_start = std::fmin(temp.first, to_start);
-        to_end = std::fmax(temp.second, to_end);
+        std::pair<std::size_t, std::size_t> temp = it->getTransferToDeviceTime();
+        to_start = std::min(temp.first, to_start);
+        to_end = std::max(temp.second, to_end);
 
         temp = it->getTransferFromDeviceTime();
-        from_start = std::fmin(temp.first, from_start);
-        from_end = std::fmax(temp.second, from_end);
+        from_start = std::min(temp.first, from_start);
+        from_end = std::max(temp.second, from_end);
     }
     
     return (to_end - to_start) + getExecutionTime() + (from_end - from_start);
