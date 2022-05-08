@@ -1,10 +1,16 @@
 #include <iostream>
+#include <string>
+#include <vector>
 #include <exception>
 #include <cstdlib>
 #include <iomanip>
 
 #include "ezocl_core.h"
 #include "utilities.h"
+
+#ifndef EXIT_FAILURE
+#define EXIT_FAILURE 1
+#endif
 
 
 
@@ -35,11 +41,28 @@ int main(int argc, char* argv[]) {
         default: std::cerr << "[ Error ]: Invalid algorithm version\n"; return EXIT_FAILURE;
     }
 
-    auto [mat_in1, mat_in2] = generateTestData(1000, 1000, 1000); //parse_matrices_file(in_filename);
+    auto [mat_in1, mat_in2] = parse_matrices_file(in_filename); //generate_test_data(1000, 1000, 1000);
+    
+    auto resulting_height = mat_in2.getWidth(),
+         resulting_width = mat_in1.getHeight();
+    
+    mat_in1 = make_zero_padding(
+        mat_in1,
+        LOCAL_SIZE - mat_in1.getHeight() % LOCAL_SIZE,
+        LOCAL_SIZE - mat_in1.getWidth() % LOCAL_SIZE
+    );
+    mat_in2 = make_zero_padding(
+        mat_in2,
+        LOCAL_SIZE - mat_in2.getHeight() % LOCAL_SIZE,
+        LOCAL_SIZE - mat_in2.getWidth() % LOCAL_SIZE
+    );
+    
     decltype(mat_in1) mat_out;
     mat_out.setSize(mat_in1.getHeight(), mat_in2.getWidth());
 
+#ifdef DEBUG
     Matrix<float> mat_eval = mat_mul_cpu(mat_in1, mat_in2);
+#endif
     
     try {
         auto ocl_devices = ezocl::DeviceManager::getDevices();
@@ -58,7 +81,7 @@ int main(int argc, char* argv[]) {
 
         ezocl::Kernel kernel {
             kernel_name,
-            ezocl::makeGlobalNDRange(local_worksize, mat_in2.getWidth(), mat_in1.getHeight() / vector_size),
+            ezocl::makeGlobalNDRange(local_worksize, mat_in2.getWidth(), mat_in1.getHeight() / static_cast<double>(vector_size)),
             local_worksize,
             heightA, widthA, widthB,
             matA, matB, matC
@@ -68,19 +91,22 @@ int main(int argc, char* argv[]) {
         my_program.execute(ocl_build_options);
         
         /// TEST: Compare CPU and GPU outputs
+#ifdef DEBUG
         if (compareMatrices(mat_eval, mat_out)) {
             std::cout << "\n[ TEST ] CPU and GPU results equal: PASSED\n";
         } else {
             std::cout << "\n[ TEST ] CPU and GPU results equal: FAILED\n";
         }
+#endif
 
         auto total_time = my_program.getTotalKernelTime();
         auto kernel_time = my_program.getKernelExecutionTime();
 
-        std::cout << std::showpoint \
-                << "\nTime: " << total_time[0] / 1000000.0 << '\t' \
-                << kernel_time[0] / 1000000.0 << std::noshowpoint << " \n";
+        std::cout << std::showpoint
+                << "\nTime: " << static_cast<double>(total_time[0]) / 1000000.0 << '\t'
+                << static_cast<double>(kernel_time[0]) / 1000000.0 << std::noshowpoint << " \n";
 
+        mat_out.setSizeNoResizing(resulting_height, resulting_width);
         save_matrix_to_file(mat_out, out_filename);
 
     } catch(const std::exception& e) {
