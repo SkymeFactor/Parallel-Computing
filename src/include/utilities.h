@@ -57,7 +57,7 @@ std::enable_if_t<std::is_floating_point_v<T>, bool> is_close(const T& a, const T
         Float(T val) : int_repr(0) { float_repr = val; };
     };
 
-    return std::abs(Float(a).int_repr - Float(b).int_repr) <= 6; // 5 ULPs distance is more than enough
+    return std::abs(Float(a).int_repr - Float(b).int_repr) <= 6; // 6 ULPs distance is more than enough
 };
 
 template <class T>
@@ -122,6 +122,8 @@ void save_matrix_to_file(const Matrix<T>& mat, const std::string& filename) {
     for (unsigned i = 0; i < mat.getHeight(); ++i)
         for (unsigned j = 0; j < mat.getWidth(); j++)
             fout << mat[i][j] << (j < mat.getWidth() - 1 ? ' ' : '\n');
+    
+    fout.close();
 };
 
 template<class T>

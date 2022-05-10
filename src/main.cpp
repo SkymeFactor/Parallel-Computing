@@ -18,56 +18,68 @@ int main(int argc, char* argv[]) {
     if (argc < 5)
         return EXIT_FAILURE;
     
-    int ocl_device_number {std::atoi(argv[1])};
+    // Initialize
+    int ocl_device_number;
+    int algorithm_implementation;
+    
+    try {
+        ocl_device_number = std::stoi(argv[1]);
+        algorithm_implementation = std::stoi(argv[4]);
+    } catch (...) {
+        std::cerr << "[ ERROR ]: Integral parameter expected, got NaN\n";
+        return EXIT_FAILURE;
+    }
+    
     std::string in_filename {argv[2]};
     std::string out_filename {argv[3]};
-    int algorithm_implementation {std::atoi(argv[4])};
-
     std::string ocl_build_options {"-cl-std=CL1.2 -DBLOCK_SIZE=" + std::to_string(LOCAL_SIZE)};
     std::string kernel_filename {"src/kernels/floatMatMul.cl"};
     std::string kernel_name {""};
+    
     std::vector<std::size_t> local_worksize {LOCAL_SIZE, LOCAL_SIZE};
     unsigned vector_size = 1;
 
-
-    switch (algorithm_implementation) {
-        case 1: kernel_name = "matMulSimple"; break;
-        case 2: kernel_name = "matMulBlocked"; break;
-        case 3:
-            kernel_name = "matMulBlockedVectorized";
-            vector_size = 8;
-            local_worksize = {LOCAL_SIZE, LOCAL_SIZE / vector_size};
-        break;
-        default: std::cerr << "[ Error ]: Invalid algorithm version\n"; return EXIT_FAILURE;
-    }
-
-    auto [mat_in1, mat_in2] = parse_matrices_file(in_filename); //generate_test_data(1000, 1000, 1000);
+    try {
+        switch (algorithm_implementation) {
+            case 1: kernel_name = "matMulSimple"; break;
+            case 2: kernel_name = "matMulBlocked"; break;
+            case 3:
+                kernel_name = "matMulBlockedVectorized";
+                vector_size = 8;
+                local_worksize = {LOCAL_SIZE, LOCAL_SIZE / vector_size};
+            break;
+            default: throw std::invalid_argument("Invalid algorithm version");
+        }
     
-    auto resulting_width = mat_in2.getWidth(),
-         resulting_height = mat_in1.getHeight();
-    
-    mat_in1 = make_zero_padding(
-        mat_in1,
-        LOCAL_SIZE - mat_in1.getHeight() % LOCAL_SIZE,
-        LOCAL_SIZE - mat_in1.getWidth() % LOCAL_SIZE
-    );
-    mat_in2 = make_zero_padding(
-        mat_in2,
-        LOCAL_SIZE - mat_in2.getHeight() % LOCAL_SIZE,
-        LOCAL_SIZE - mat_in2.getWidth() % LOCAL_SIZE
-    );
-    
-    decltype(mat_in1) mat_out;
-    mat_out.setSize(mat_in1.getHeight(), mat_in2.getWidth());
+        // Read matrices from file
+        auto [mat_in1, mat_in2] = parse_matrices_file(in_filename); //generate_test_data(1000, 1000, 1000);
+        
+        auto resulting_width = mat_in2.getWidth(),
+            resulting_height = mat_in1.getHeight();
+        
+        mat_in1 = make_zero_padding(
+            mat_in1,
+            LOCAL_SIZE - mat_in1.getHeight() % LOCAL_SIZE,
+            LOCAL_SIZE - mat_in1.getWidth() % LOCAL_SIZE
+        );
+        mat_in2 = make_zero_padding(
+            mat_in2,
+            LOCAL_SIZE - mat_in2.getHeight() % LOCAL_SIZE,
+            LOCAL_SIZE - mat_in2.getWidth() % LOCAL_SIZE
+        );
+        
+        decltype(mat_in1) mat_out;
+        mat_out.setSize(mat_in1.getHeight(), mat_in2.getWidth());
 
 #ifdef DEBUG
-    Matrix<float> mat_eval = mat_mul_cpu(mat_in1, mat_in2);
+        Matrix<float> mat_eval = mat_mul_cpu(mat_in1, mat_in2);
 #endif
-    
-    try {
+
+        // OpenCL set-up
         auto ocl_devices = ezocl::DeviceManager::getDevices();
-        if (ocl_devices.size() == 0 || ocl_device_number > ocl_devices.size() - 1)
-            return EXIT_FAILURE;
+
+        if (ocl_devices.size() == 0) throw std::runtime_error("No devices found");
+        if (ocl_device_number > ocl_devices.size() - 1) ocl_device_number = 0;
         
         cl_uint hA = mat_in1.getHeight();
         cl_uint wA = mat_in1.getWidth();
@@ -90,27 +102,29 @@ int main(int argc, char* argv[]) {
         ezocl::Program my_program(kernel_filename, ocl_devices[ocl_device_number], kernel);
         my_program.execute(ocl_build_options);
         
-        /// TEST: Compare CPU and GPU outputs
 #ifdef DEBUG
-        if (compareMatrices(mat_eval, mat_out)) {
-            std::cout << "\n[ TEST ] CPU and GPU results equal: PASSED\n";
-        } else {
-            std::cout << "\n[ TEST ] CPU and GPU results equal: FAILED\n";
-        }
+        /// TEST: Compare CPU and GPU outputs
+        std::cout << "\n[ TEST ] CPU and GPU results equal: ";
+        std::cout << compareMatrices(mat_eval, mat_out) ? "PASSED\n" : "FAILED\n";
 #endif
 
-        auto total_time = my_program.getTotalKernelTime();
-        auto kernel_time = my_program.getKernelExecutionTime();
+        // Print results
+        auto total_time_ns = my_program.getTotalKernelTime();
+        auto kernel_time_ns = my_program.getKernelExecutionTime();
 
         std::cout << std::showpoint
-                << "\nTime: " << static_cast<double>(kernel_time[0]) / 1000000.0 << '\t'
-                << static_cast<double>(total_time[0]) / 1000000.0 << std::noshowpoint << " \n";
-
+                << "\nTime: " << static_cast<double>(kernel_time_ns[0]) / 1000000.0 << '\t'
+                << static_cast<double>(total_time_ns[0]) / 1000000.0 << std::noshowpoint << " \n";
+        
+        // Save matrix
         mat_out = remove_padding(mat_out, resulting_height, resulting_width);
         save_matrix_to_file(mat_out, out_filename);
 
     } catch(const std::exception& e) {
         std::cerr << "[ Error ]: " << e.what() << '\n';
+        return EXIT_FAILURE;
+    } catch (...) {
+        std::cerr << "[ Error ]: Unknown error\n";
         return EXIT_FAILURE;
     }
 
