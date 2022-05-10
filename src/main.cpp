@@ -103,8 +103,8 @@ int main(int argc, char* argv[]) {
         auto kernel_time = my_program.getKernelExecutionTime();
 
         std::cout << std::showpoint
-                << "\nTime: " << static_cast<double>(total_time[0]) / 1000000.0 << '\t'
-                << static_cast<double>(kernel_time[0]) / 1000000.0 << std::noshowpoint << " \n";
+                << "\nTime: " << static_cast<double>(kernel_time[0]) / 1000000.0 << '\t'
+                << static_cast<double>(total_time[0]) / 1000000.0 << std::noshowpoint << " \n";
 
         mat_out = remove_padding(mat_out, resulting_height, resulting_width);
         save_matrix_to_file(mat_out, out_filename);
