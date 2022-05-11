@@ -19,12 +19,12 @@ int main(int argc, char* argv[]) {
         return EXIT_FAILURE;
     
     // Initialize
-    int ocl_device_number;
-    int algorithm_implementation;
+    std::size_t ocl_device_number;
+    std::size_t algorithm_implementation;
     
     try {
-        ocl_device_number = std::stoi(argv[1]);
-        algorithm_implementation = std::stoi(argv[4]);
+        ocl_device_number = static_cast<std::size_t>(std::stoul(argv[1]));
+        algorithm_implementation = static_cast<std::size_t>(std::stoul(argv[4]));
     } catch (...) {
         std::cerr << "[ ERROR ]: Integral parameter expected, got NaN\n";
         return EXIT_FAILURE;
