@@ -22,7 +22,7 @@ void Kernel::releaseArgs(cl_command_queue& cq) {
 void Kernel::setArgsToKernel() {
     cl_int ret = CL_SUCCESS;
 
-    for (int i = 0; i < arguments.size(); ++i)
+    for (unsigned i = 0; i < arguments.size(); ++i)
         ret |= clSetKernelArg(handle, i, arguments[i]->getSize(), arguments[i]->getPointer());
 
     if (ret != CL_SUCCESS) throw Error("Unable to set kernel arguments");

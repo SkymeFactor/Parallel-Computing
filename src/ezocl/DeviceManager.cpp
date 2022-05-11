@@ -43,7 +43,7 @@ void DeviceManager::list_devices() {
         ret |= clGetDeviceIDs(p, CL_DEVICE_TYPE_CPU | CL_DEVICE_TYPE_GPU, num_devices, platform_devices, NULL);
         check_errors(ret, "Unable to get opencl devices");
 
-        for (int i = 0; i < num_devices; ++i)
+        for (unsigned i = 0; i < num_devices; ++i)
             devices.emplace_back(Device(platform_devices[i], p));
         
         delete[] platform_devices;

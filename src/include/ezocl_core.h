@@ -162,7 +162,7 @@ public:
             global_work_size{std::forward<T>(global_work_size)},
             local_work_size{std::forward<T>(local_work_size)},
             arguments{std::make_shared<Buffer>(std::forward<Buffer>(args))...}
-    {};
+    {}
     Kernel() = delete;
     ~Kernel() { releaseHandle(); };
 

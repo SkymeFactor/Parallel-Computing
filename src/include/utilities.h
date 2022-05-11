@@ -70,7 +70,7 @@ bool compareMatrices(Matrix<T> matA, Matrix<T> matB) {
     float* test_arr = &matA[0][0];
     float* pOutputVector = &matB[0][0];
 
-    for (int i = 0; i < matA.getHeight() * matA.getWidth(); ++i) {
+    for (unsigned i = 0; i < matA.getHeight() * matA.getWidth(); ++i) {
         if (!is_close(test_arr[i], pOutputVector[i])) {
             are_equal = false;
             //std::cout << i + 1 << ": " << pOutputVector[i] << ' ' << test_arr[i] << '\n';
