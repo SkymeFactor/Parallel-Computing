@@ -9,12 +9,10 @@ private:
         T* data;
         const unsigned width;
     public:
-        _Row(T* data, const unsigned& width): data{data}, width{width} {};
+        constexpr _Row(T* data, const unsigned& width): data{data}, width{width} {};
         
-        T& operator[](const int& i) {
-            if (i < 0 || i >= width)
-                throw std::out_of_range("Matrix column index is out of range");
-            return data[i];
+        constexpr T& operator[](const unsigned& i) {
+            return (i < width) ? data[i] : throw std::out_of_range("Matrix column index is out of range");
         }
     };
 
@@ -22,9 +20,9 @@ private:
     unsigned int width;
     unsigned int height;
 public:
-    Matrix() = default;
-    inline _Row operator[](const int& i) const {
-        if (i < 0 || i >= height)
+    constexpr Matrix() = default;
+    constexpr _Row operator[](const unsigned& i) const {
+        if (i >= height)
             throw std::out_of_range("Matrix row index is out of range");
         return _Row(&data[i * width], width);
     };
@@ -37,9 +35,9 @@ public:
         std::fill(data.begin(), data.end(), 0.0f);
     };
 
-    inline unsigned int getWidth()  const noexcept { return width; };
-    inline unsigned int getHeight() const noexcept { return height; };
-    inline unsigned int getSizeInBytes() const noexcept { return width * height * sizeof(T); };
+    constexpr unsigned int getWidth()  const noexcept { return width; };
+    constexpr unsigned int getHeight() const noexcept { return height; };
+    constexpr unsigned int getSizeInBytes() const noexcept { return width * height * sizeof(T); };
     
     inline auto begin() noexcept { return data.begin(); };
     inline auto end() noexcept { return data.end(); };
