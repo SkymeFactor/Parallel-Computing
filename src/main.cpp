@@ -105,7 +105,7 @@ int main(int argc, char* argv[]) {
 #ifdef DEBUG
         /// TEST: Compare CPU and GPU outputs
         std::cout << "\n[ TEST ] CPU and GPU results equal: ";
-        std::cout << compareMatrices(mat_eval, mat_out) ? "PASSED\n" : "FAILED\n";
+        std::cout << (compareMatrices(mat_eval, mat_out) ? "PASSED\n" : "FAILED\n");
 #endif
 
         // Print results
