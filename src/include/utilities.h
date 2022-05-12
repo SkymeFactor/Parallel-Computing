@@ -8,6 +8,11 @@
 
 
 
+//-------------------------------------------------------------------------------------
+// Test data generation
+//-------------------------------------------------------------------------------------
+
+
 template <typename T = float>
 std::enable_if_t<std::is_floating_point_v<T>, std::pair<Matrix<T>, Matrix<T>> >
 generate_test_data(const int& m, const int& k, const int& n, const T& max_val = 1000.0) {
@@ -24,6 +29,11 @@ generate_test_data(const int& m, const int& k, const int& n, const T& max_val = 
     
     return {mat_in1, mat_in2};
 };
+
+
+//-------------------------------------------------------------------------------------
+// CPU matrix multiplication
+//-------------------------------------------------------------------------------------
 
 
 template <typename T>
@@ -46,6 +56,11 @@ Matrix<T> mat_mul_cpu(const Matrix<T>& matA, const Matrix<T>& matB) {
 };
 
 
+//-------------------------------------------------------------------------------------
+// Matrices comparison
+//-------------------------------------------------------------------------------------
+
+
 template<class T>
 std::enable_if_t<std::is_floating_point_v<T>, bool> is_close(const T& a, const T& b) {
     if (std::fabs(a - b) <= NEARLY_ZERO)
@@ -59,6 +74,7 @@ std::enable_if_t<std::is_floating_point_v<T>, bool> is_close(const T& a, const T
 
     return std::abs(Float(a).int_repr - Float(b).int_repr) <= 6; // 6 ULPs distance is more than enough
 };
+
 
 template <class T>
 bool compareMatrices(Matrix<T> matA, Matrix<T> matB) {
@@ -80,6 +96,11 @@ bool compareMatrices(Matrix<T> matA, Matrix<T> matB) {
 
     return are_equal;
 };
+
+
+//-------------------------------------------------------------------------------------
+// Files processing
+//-------------------------------------------------------------------------------------
 
 
 template <class T = float>
@@ -125,6 +146,12 @@ void save_matrix_to_file(const Matrix<T>& mat, const std::string& filename) {
     
     fout.close();
 };
+
+
+//-------------------------------------------------------------------------------------
+// Matrices padding
+//-------------------------------------------------------------------------------------
+
 
 template<class T>
 Matrix<T> make_zero_padding(const Matrix<T>& mat, const unsigned& pad_size_h, const unsigned& pad_size_w) {
