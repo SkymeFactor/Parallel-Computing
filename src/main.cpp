@@ -77,15 +77,35 @@ int main(int argc, char* argv[]) {
 			in_buff_shared, out_buff_shared, sums_buff_shared
 		};
 
-		ezocl::Kernel kernel_spread {
-			kernel_spread_name,
-			ezocl::makeGlobalNDRange({block_size / 4}, (vec_in.size() - block_size) / 4),
-			{block_size / 4},
-			out_buff_shared, sums_buff_shared
-		};
+		// Time related variables
+		std::vector<std::size_t> total_time_ns;
+		std::vector<std::size_t> kernel_time_ns;
 
-		ezocl::Program my_program(kernel_filename, ocl_devices[ocl_device_number], kernel, kernel_spread);
-		my_program.execute(ocl_build_options);
+		// When we have only one block, we don't need spreading
+		if (vec_in.size() - block_size != 0){
+
+			ezocl::Kernel kernel_spread {
+				kernel_spread_name,
+				ezocl::makeGlobalNDRange({block_size / 4}, (vec_in.size() - block_size) / 4),
+				{block_size / 4},
+				out_buff_shared, sums_buff_shared
+			};
+
+			ezocl::Program my_program(kernel_filename, ocl_devices[ocl_device_number], kernel, kernel_spread);
+			my_program.execute(ocl_build_options);
+
+			total_time_ns  = my_program.getTotalKernelTime();
+			kernel_time_ns  = my_program.getKernelExecutionTime();
+
+		} else {
+
+			ezocl::Program my_program(kernel_filename, ocl_devices[ocl_device_number], kernel);
+			my_program.execute(ocl_build_options);
+
+			total_time_ns  = my_program.getTotalKernelTime();
+			kernel_time_ns  = my_program.getKernelExecutionTime();
+		}
+		
 		
 #ifdef DEBUG
 		/// TEST: Compare CPU and GPU outputs
@@ -100,10 +120,6 @@ int main(int argc, char* argv[]) {
 #endif
 
 		// Print results
-		
-		auto total_time_ns  = my_program.getTotalKernelTime();
-		auto kernel_time_ns  = my_program.getKernelExecutionTime();
-
 		std::cout << std::showpoint
 				<< "\nTime: " << (static_cast<double>(kernel_time_ns[0]) +
 						static_cast<double>(kernel_time_ns[1])) / 1000000.0 << '\t'
