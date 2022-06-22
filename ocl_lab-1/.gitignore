@@ -1,0 +1,14 @@
+# Common
+.*
+!.gitkeep
+!.gitignore
+
+# Directories
+build
+obj
+
+# File-types
+*.o
+*.d
+*.elf
+
